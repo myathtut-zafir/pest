@@ -44,3 +44,27 @@ test('auth user can not create product', function () {
     $this->assertDatabaseHas('products', $data);
 
 })->only();
+test('guess not update', function () {
+
+    $product = Product::factory()->create();
+    $data = Product::factory()->raw();
+
+    $this->putJson("/api/products/{$product->id}", $data)
+        ->assertStatus(401);
+
+    $this->assertDatabaseHas('products', $product->toArray());
+})->only();
+
+test('auth user can update', function () {
+    $user = User::factory()->create();
+    Sanctum::actingAs($user);
+
+    $product = Product::factory()->create();
+    $data = Product::factory()->raw();
+
+    $this->putJson("/api/products/{$product->id}", $data)
+        ->assertStatus(200);
+
+    $this->assertDatabaseHas('products', $data);
+
+})->only();
