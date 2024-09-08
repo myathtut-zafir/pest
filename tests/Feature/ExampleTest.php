@@ -10,3 +10,4 @@ test('the application return a success response', function () {
     $response->assertStatus(200);
 });
 
+
