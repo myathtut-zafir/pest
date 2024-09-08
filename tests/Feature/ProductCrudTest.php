@@ -1,6 +1,8 @@
 <?php
 
 use App\Models\Product;
+use App\Models\User;
+use Laravel\Sanctum\Sanctum;
 
 test('user can get the list of products', function () {
     $product = Product::factory()->create();
@@ -21,5 +23,24 @@ test('user can get a product', function () {
     $product = Product::factory()->create();
     $this->getJson("/api/products/{$product->id}")
         ->assertStatus(200);
+
+})->only();
+
+test('guess user can not create product', function () {
+    $product = Product::factory()->raw();
+    $this->postJson('/api/products', $product)
+        ->assertStatus(401);
+    $this->assertDatabaseCount('products', 0);
+})->only();
+
+test('auth user can not create product', function () {
+    $user = User::factory()->create();
+    Sanctum::actingAs($user);
+
+    $data = Product::factory()->raw();
+    $this->postJson('/api/products', $data)->assertStatus(201);
+
+    $this->assertDatabaseCount('products', 1);
+    $this->assertDatabaseHas('products', $data);
 
 })->only();
